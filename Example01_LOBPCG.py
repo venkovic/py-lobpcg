@@ -11,7 +11,7 @@ from BjPreconditioner import assembleBj
 np.random.seed(1)
 
 # Matrix and preconditioner selection
-matrix = "Poisson128_k"
+matrix = "bcsst15"
 
 # SPD-SPD generalized: 
 # "bcsst12", "bcsst25", "Poisson4", "Poisson8",
@@ -101,13 +101,13 @@ elif "bJ" in precond:
   M = LinearOperator((n, n), matvec=bJ.invT)
 
 # Random initial guess
-#X0 = np.random.rand(n, m)
-X0 = np.load("X0.%s.m%d.npz" % (matrix[:-2], m))
+X0 = np.random.rand(n, m)
+#X0 = np.load("X0.%s.m%d.npz" % (matrix[:-2], m))
 
 
 # LOBPCG solver parameters
 itmax = 10_000
-method = "SciPy" # "Basic", "BLOPEX", "Ortho", "Skip_ortho", "SciPy"
+method = "BLOPEX" # "Basic", "BLOPEX", "Ortho", "Skip_ortho", "SciPy"
 A_products = "implicit" # "implicit", "explicit"
 B_products = "implicit" # "implicit", "explicit"
 

@@ -1,7 +1,7 @@
 from scipy.linalg.blas import dgemm
 from scipy.linalg import cholesky, inv
 from numpy import matmul
-from numpy.linalg import norm
+from numpy.linalg import norm, solve
 from numpy import copyto, diag, empty, vstack, zeros
 from numpy import abs, sqrt
 
@@ -236,10 +236,9 @@ def BLOPEX_LOBPCG_gen(A, B, X0, nev,
   BX[:] = B @ X
   XtBX = matmul(X.T, BX)
   U = cholesky(XtBX, lower=False)
-  invU = inv(U)
-  matmul(X, invU, out=W); copyto(X, W) # X[:] = X @ invU
+  X[:] = solve(U.T, X.T).T # X[:] = X @ inv(U)
   if B_products == 'implicit':
-    matmul(BX, invU, out=W); copyto(BX, W) # BX[:] = BX @ invU
+    BX[:] = solve(U.T, BX.T).T # BX[:] = BX @ inv(U)
   else:
     BX[:] = B @ X
   AX[:] = A @ X
@@ -277,10 +276,9 @@ def BLOPEX_LOBPCG_gen(A, B, X0, nev,
       BZ[:] = B @ Z
       ZtBZ  = matmul(Z.T, BZ)
       U[:] = cholesky(ZtBZ, lower=False)
-      invU[:] = inv(U)
-      matmul(Z, invU, out=W); copyto(Z, W)  # Z[:] = Z @ invU
+      Z[:] = solve(U.T, Z.T).T # Z[:] = Z @ inv(U)
       if B_products == 'implicit':
-        matmul(BZ, invU, out=W); copyto(BZ, W)  # BZ[:] = BZ @ invU
+        BZ[:] = solve(U.T, BZ.T).T  # BZ[:] = BZ @ inv(U)
       else:
         BZ[:] = B @ Z
       AZ[:] = A @ Z
@@ -300,14 +298,13 @@ def BLOPEX_LOBPCG_gen(A, B, X0, nev,
       else:
         PtBP = matmul(P.T, BP)
         U[:] = cholesky(PtBP, lower=False)
-        invU[:] = inv(U)
-        matmul(P, invU, out=W); copyto(P, W) # P[:] = P @ invU
+        P[:] = solve(U.T, P.T).T # P[:] = P @ inv(U)
         if A_products == 'implicit':
-          matmul(AP, invU, out=W); copyto(AP, W) # AP[:] = AP @ invU
+          AP[:] = solve(U.T, AP.T).T # AP[:] = AP @ inv(U)
         else:
           AP[:] = A @ P
         if B_products == 'implicit':
-          matmul(BP, invU, out=W); copyto(BP, W) # BP[:] = BP @ invU
+          BP[:] = solve(U.T, BP.T).T # BP[:] = BP @ inv(U)
         else:
           BP[:] = B @ P
         hX, Lambda = RR_BLOPEX2(X, Z, P, AX, AZ, AP, BZ, BP)
